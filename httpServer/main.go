@@ -4,17 +4,20 @@ import (
 	"flag"
 	"net/http"
 	"os"
+	"regexp"
 
 	"github.com/golang/glog"
 )
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
+	re := regexp.MustCompile(`:.*$`)
+	clientIp := string(re.ReplaceAll([]byte(r.RemoteAddr), []byte("")))
 	defer func() {
 		err := recover()
 		if err != nil {
-			glog.V(2).Infof("request=rootHandler, remoteAddr=%s, statsCode=%d", r.RemoteAddr, http.StatusInternalServerError)
+			glog.V(2).Infof("request=rootHandler, remoteAddr=%s, statusCode=%d", clientIp, http.StatusInternalServerError)
 		} else {
-			glog.V(2).Infof("request=rootHandler, remoteAddr=%s, statsCode=%d", r.RemoteAddr, http.StatusOK)
+			glog.V(2).Infof("request=rootHandler, remoteAddr=%s, statusCode=%d", clientIp, http.StatusOK)
 		}
 
 	}()

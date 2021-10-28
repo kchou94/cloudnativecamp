@@ -10,8 +10,7 @@ import (
 )
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-	re := regexp.MustCompile(`:.*$`)
-	clientIp := string(re.ReplaceAll([]byte(r.RemoteAddr), []byte("")))
+	clientIp := reClientIp(r)
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -42,6 +41,11 @@ func writeHeader(w http.ResponseWriter, h http.Header) {
 	}
 }
 
+func reClientIp(r *http.Request) string {
+	re := regexp.MustCompile(`:.*$`)
+	return string(re.ReplaceAll([]byte(r.RemoteAddr), []byte("")))
+}
+
 func main() {
 	flag.Set("v", "4")
 	flag.Set("logtostderr", "true")
@@ -54,6 +58,6 @@ func main() {
 	mux.HandleFunc("/", rootHandler)
 	mux.HandleFunc("/healthz", healthz)
 
-	err := http.ListenAndServe(":8080", mux)
+	err := http.ListenAndServe("0.0.0.0:8080", mux)
 	glog.Error(err.Error())
 }
